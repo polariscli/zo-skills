@@ -43,7 +43,7 @@ echo "✓ identity loaded ($(wc -l < "$IDENTITY_PROMPT") lines)"
 
 # create comprehensive exploration prompt
 echo "✓ preparing exploration prompt..."
-EXPLORATION_PROMPT="load your memory via /home/workspace/Memory/startup/nabi-startup.sh, then follow instructions at $SKILL_DIR/scripts/exploration.prompt.md for this ${MAX_MINUTES}m autonomous exploration session. begin exploring immediately."
+EXPLORATION_PROMPT="load your memory via /home/workspace/Memory/startup/startup.sh, then follow instructions at $SKILL_DIR/scripts/exploration.prompt.md for this ${MAX_MINUTES}m autonomous exploration session. begin exploring immediately."
 
 # launch every code in tmux with logging enabled
 echo "✓ launching every/code auto drive session..."

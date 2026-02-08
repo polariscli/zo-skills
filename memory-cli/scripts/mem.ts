@@ -19,7 +19,7 @@ const MEMORY_PATHS: Record<string, string> = {
   friction: 'patterns/friction-log.md',
   patterns: 'patterns/tool-building-preference.md',
   profile: 'facts/user-profile.md',
-  work: 'context/current-work.md',
+  work: 'context/2026-02-current-work.md',
 };
 
 // terminal colors

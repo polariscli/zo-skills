@@ -9,7 +9,7 @@ import { spawn } from "child_process";
 
 const PORT = 8081;
 const CREDS_PATH = "/home/.z/whoop/credentials.json";
-const EXPLORATION_AGENT_PATH = "/home/workspace/Skills/whoop/scripts/trigger-exploration.ts";
+const EXPLORATION_AGENT_PATH = "/home/workspace/Skills/night-exploration/scripts/trigger.ts";
 
 interface Credentials {
   client_id: string;

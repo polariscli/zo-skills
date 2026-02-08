@@ -133,6 +133,27 @@ designed for quick memory access during sessions:
 
 all operations are instant - no network calls, just file reads.
 
+### startup script
+
+create a startup script at `Memory/startup/startup.sh` to use with memory-cli:
+
+```bash
+#!/bin/bash
+export PATH="$HOME/.bun/bin:$PATH"
+
+echo "loading memories..."
+mem recall soul
+echo ""
+mem recall goals
+echo ""
+mem recall friction
+echo ""
+mem recall work
+echo "✓ memory loaded"
+```
+
+this can be used by other skills (like night-exploration) to load context at session start.
+
 ## files
 
 - `SKILL.md` - this file

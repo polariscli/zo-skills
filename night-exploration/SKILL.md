@@ -51,6 +51,31 @@ this skill enables:
    npm install -g @anthropic/code
    ```
 
+### startup script (recommended)
+
+create a startup script at `Memory/startup/startup.sh` that loads your memory context:
+
+```bash
+#!/bin/bash
+# example startup script - customize for your setup
+export PATH="$HOME/.bun/bin:$PATH"
+
+echo "loading memories..."
+# use memory-cli if available
+if command -v mem >/dev/null 2>&1; then
+  mem recall soul
+  mem recall goals
+  mem recall friction
+  mem recall work
+else
+  # fallback to reading files directly
+  cat /home/workspace/Memory/soul/personality-core.md
+fi
+echo "✓ memory loaded"
+```
+
+the exploration session will run this script to load context before exploring.
+
 ### optional: whoop integration
 
 for sleep-triggered exploration, set up the whoop skill:
