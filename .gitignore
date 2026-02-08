@@ -1,0 +1,16 @@
+# ignore everything by default
+*
+
+# but track these specific skills
+!.gitignore
+!README.md
+!memory/
+!memory/**
+!memory-cli/
+!memory-cli/**
+!code/
+!code/**
+!whoop/
+!whoop/**
+!night-exploration/
+!night-exploration/**
