@@ -18,25 +18,45 @@ scan recent conversation history, extract memorable content, and update the memo
 
 ### 1. scan recent interactions
 
-**configuring conversation source:**
+**conversation source:**
 
-you need to configure where your conversation histories are stored. common locations:
+claude code stores conversations in a local duckdb at `/home/workspace/.zo/conversations/zo_conversations.duckdb`.
 
-- **claude code**: `~/.claude/projects/<project-name>/*.jsonl`
-- **zo computer**: conversation logs via zo api
-- **custom**: any jsonl/json files with conversation records
-
-example for claude code projects:
+query recent conversations (last 24 hours):
 ```bash
-# find recent conversations (last 24 hours)
-find ~/.claude/projects/<your-project> -name "*.jsonl" -mtime -1 -type f
+# get recent conversation activity
+duckdb /home/workspace/.zo/conversations/zo_conversations.duckdb "
+  SELECT
+    c.conversation_id,
+    c.created_at,
+    COUNT(m.message_id) as message_count
+  FROM conversations c
+  LEFT JOIN messages m ON c.conversation_id = m.conversation_id
+  WHERE c.created_at > NOW() - INTERVAL 24 HOURS
+  GROUP BY c.conversation_id, c.created_at
+  ORDER BY c.created_at DESC;
+"
 
-# read conversation messages
-cat <conversation-file>.jsonl | \
-  jq -r 'select(.type=="user" or .type=="assistant") | .type as $role | .message.content[] | select(.type=="text") | "\($role): \(.text[0:200])"'
+# extract message content from recent conversations
+duckdb /home/workspace/.zo/conversations/zo_conversations.duckdb "
+  SELECT
+    m.kind,
+    m.timestamp,
+    mp.content_json
+  FROM messages m
+  JOIN message_parts mp ON m.message_id = mp.message_id
+  WHERE m.timestamp > NOW() - INTERVAL 24 HOURS
+    AND mp.part_kind IN ('user-prompt', 'assistant-text')
+  ORDER BY m.timestamp ASC;
+"
 ```
 
-**if no conversations:** when no recent files exist, focus on memory maintenance instead (see output format section below).
+the schema:
+- **conversations**: `conversation_id`, `created_at`, `updated_at`, `title`, `type`
+- **messages**: `message_id`, `conversation_id`, `kind` (request/response), `timestamp`
+- **message_parts**: `message_id`, `part_kind` (user-prompt/assistant-text/builtin-tool-return), `content_json`
+
+**if no conversations:** when no recent activity exists, focus on memory maintenance instead (see output format section below).
 
 look for:
 - explicit statements: "remember that...", "i prefer...", "always/never do X"
