@@ -4,13 +4,11 @@ description: |
   autonomous ai exploration sessions triggered by sleep or schedule.
   builds identity from memories, launches every/code sessions, documents findings.
   when you sleep, the ai explores and learns on your behalf.
-  
 compatibility: requires memory skill, code skill, and every/code CLI
 metadata:
   author: polaris.zo.computer
   version: 1.0.0
 ---
-
 # night-exploration skill
 
 autonomous exploration sessions that run when you're asleep or away.

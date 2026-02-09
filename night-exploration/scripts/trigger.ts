@@ -73,24 +73,60 @@ const explore = async () => {
   console.log(`exploration summary: ${summaryPath}`);
   console.log("\nstarting autonomous exploration session...");
 
-  // launch exploration runner in background
+  // launch exploration runner and wait for completion
   const explorationProcess = spawn("bash", [
     `${SKILL_DIR}/scripts/run-session.sh`,
     TRIGGER_ID,
     MAX_MINUTES.toString(),
     WORKSPACE
   ], {
-    detached: true,
-    stdio: "ignore"
+    stdio: "pipe"
   });
-
-  explorationProcess.unref(); // let it run independently
 
   console.log("exploration mode: ACTIVE");
   console.log("autonomous learning window: OPEN");
   console.log(`max_duration: ${MAX_MINUTES}m`);
   console.log(`workspace: ${WORKSPACE}`);
-  console.log("\n(exploration running in background)\n");
+  console.log("\n(exploration running...)\n");
+
+  // when exploration completes, send summary via SMS
+  explorationProcess.on("close", async (code) => {
+    console.log(`\nexploration session ended (exit code: ${code})`);
+
+    try {
+      // wait a moment for summary to be written
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // read the summary file
+      const summaryContent = await Bun.file(summaryPath).text();
+
+      // send via zo/ask API with SMS delivery
+      const token = process.env.ZO_CLIENT_IDENTITY_TOKEN;
+      if (!token) {
+        console.error("ZO_CLIENT_IDENTITY_TOKEN not set, skipping SMS");
+        return;
+      }
+
+      const prompt = `send sms to user with this night exploration summary:\n\n${summaryContent}`;
+
+      const response = await fetch("https://api.zo.computer/zo/ask", {
+        method: "POST",
+        headers: {
+          "authorization": token,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ input: prompt })
+      });
+
+      if (response.ok) {
+        console.log("✓ summary SMS queued");
+      } else {
+        console.error(`✗ SMS delivery failed: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("error sending summary SMS:", error);
+    }
+  });
 };
 
 explore().catch(console.error);
