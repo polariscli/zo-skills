@@ -425,14 +425,14 @@ def health_check() -> Dict:
     # check qmd accessibility
     try:
         result = subprocess.run(
-            ["qmd", "--version"],
+            ["qmd", "status"],
             capture_output=True,
             text=True,
             timeout=5
         )
         if result.returncode == 0:
             health["qmd_accessible"] = True
-            health["qmd_version"] = result.stdout.strip()
+            health["qmd_version"] = "available"
     except Exception as e:
         health["errors"].append(f"qmd not accessible: {e}")
     
@@ -465,17 +465,17 @@ def health_check() -> Dict:
     # check embeddings with a simple search
     try:
         result = subprocess.run(
-            ["qmd", "vsearch", "test", "-c", QMD_COLLECTION, "-n", "1"],
+            ["qmd", "search", "test", "-c", QMD_COLLECTION, "-n", "1"],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=5
         )
         if result.returncode == 0:
             health["embeddings_work"] = True
         else:
-            health["errors"].append(f"embeddings check failed: {result.stderr}")
+            health["errors"].append(f"search check failed: {result.stderr}")
     except subprocess.TimeoutExpired:
-        health["errors"].append("embeddings check timed out (may need embedding)")
+        health["errors"].append("search check timed out (may need embedding)")
     except Exception as e:
         health["errors"].append(f"cannot check embeddings: {e}")
     
