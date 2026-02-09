@@ -97,8 +97,20 @@ const explore = async () => {
       // wait a moment for summary to be written
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // read the summary file
-      const summaryContent = await Bun.file(summaryPath).text();
+      // find latest summary file (timestamp may differ from trigger time)
+      const { execSync } = require("child_process");
+      const latestSummary = execSync(
+        `find ${SUMMARY_DIR} -name "*.md" -type f -newer /dev/null -printf '%T@ %p\n' | sort -rn | head -1 | awk '{print $2}'`,
+        { encoding: "utf-8" }
+      ).trim();
+
+      if (!latestSummary) {
+        console.error("no summary file found in explorations directory");
+        return;
+      }
+
+      console.log(`reading summary: ${latestSummary}`);
+      const summaryContent = await Bun.file(latestSummary).text();
 
       // send via zo/ask API with SMS delivery
       const token = process.env.ZO_CLIENT_IDENTITY_TOKEN;
